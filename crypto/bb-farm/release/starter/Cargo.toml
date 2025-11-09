@@ -1,0 +1,27 @@
+[package]
+name = "bb-farm-starter"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "bb_farm_starter"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+anyhow = "1"
+base64 = "0.22"
+hex = "0.4"
+jolt-sdk = { git = "https://github.com/a16z/jolt", package = "jolt-sdk", features = ["host"], rev = "710e678bfa3bcdd3f3a229485308ac7a3841f5ee" }
+postcard = { version = "1.1", features = ["use-std"] }
+serde = { version = "1", features = ["derive"] }
+pyo3 = { version = "0.21", features = ["extension-module"] }
+
+[patch.crates-io]
+ark-ff = { git = "https://github.com/a16z/arkworks-algebra", branch = "dev/twist-shout" }
+ark-ec = { git = "https://github.com/a16z/arkworks-algebra", branch = "dev/twist-shout" }
+ark-serialize = { git = "https://github.com/a16z/arkworks-algebra", branch = "dev/twist-shout" }
+ark-bn254 = { git = "https://github.com/a16z/arkworks-algebra", branch = "dev/twist-shout" }
+ark-grumpkin = { git = "https://github.com/a16z/arkworks-algebra", branch = "dev/twist-shout" }
+allocative = { git = "https://github.com/facebookexperimental/allocative", rev = "85b773d85d526d068ce94724ff7a7b81203fc95e" }
+jolt-optimizations = { git = "https://github.com/a16z/arkworks-algebra", branch = "dev/twist-shout" }
+dory = { git = "https://github.com/markosg04/dory", branch = "dev/twist-shout" }

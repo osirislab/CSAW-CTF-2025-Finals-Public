@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - HR Portal</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --black: #000000;
+            --white: #ffffff;
+            --gray-50: #fafafa;
+            --gray-100: #f5f5f5;
+            --gray-200: #e5e5e5;
+            --gray-300: #d4d4d4;
+            --gray-400: #a3a3a3;
+            --gray-500: #737373;
+            --gray-600: #525252;
+            --gray-700: #404040;
+            --gray-800: #262626;
+            --gray-900: #171717;
+            --red: #ef4444;
+            --green: #22c55e;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--white);
+            color: var(--black);
+            line-height: 1.6;
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            min-height: 100vh;
+            padding: 3rem 2rem;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .header {
+            margin-bottom: 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .admin-badge {
+            width: 32px;
+            height: 32px;
+            background: var(--red);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .header-text h2 {
+            font-size: 2rem;
+            font-weight: 300;
+            letter-spacing: -0.02em;
+            color: var(--black);
+            margin-bottom: 0.25rem;
+        }
+        
+        .header-subtitle {
+            font-size: 1rem;
+            color: var(--gray-500);
+            font-weight: 400;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--gray-600);
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--green);
+            border-radius: 50%;
+        }
+        
+        .main-content {
+            display: grid;
+            gap: 3rem;
+        }
+        
+        .section {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            padding: 2rem;
+        }
+        
+        .section-header {
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: var(--black);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.01em;
+        }
+        
+        .section-description {
+            font-size: 0.9rem;
+            color: var(--gray-600);
+            line-height: 1.5;
+        }
+        
+        .form-group {
+            margin-bottom: 2rem;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            color: var(--gray-700);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            border: 1px solid var(--gray-200);
+            background: var(--white);
+            font-size: 1rem;
+            font-family: inherit;
+            color: var(--black);
+            transition: all 0.15s ease;
+            outline: none;
+        }
+        
+        .form-input:focus {
+            border-color: var(--black);
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-input::placeholder {
+            color: var(--gray-400);
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem 2rem;
+            border: 1px solid var(--gray-200);
+            background: var(--white);
+            color: var(--black);
+            font-size: 1rem;
+            font-weight: 500;
+            font-family: inherit;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            letter-spacing: -0.01em;
+        }
+        
+        .btn:hover {
+            background: var(--gray-50);
+            border-color: var(--gray-300);
+        }
+        
+        .btn:active {
+            background: var(--gray-100);
+            transform: scale(0.995);
+        }
+        
+        .btn-primary {
+            background: var(--black);
+            color: var(--white);
+            border-color: var(--black);
+        }
+        
+        .btn-primary:hover {
+            background: var(--gray-800);
+            border-color: var(--gray-800);
+        }
+        
+        .btn:focus {
+            outline: 2px solid var(--black);
+            outline-offset: 2px;
+        }
+        
+        .info-panel {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .info-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--black);
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .info-text {
+            font-size: 0.9rem;
+            color: var(--gray-600);
+            line-height: 1.5;
+        }
+        
+        .security-note {
+            margin-top: 3rem;
+            padding: 1.5rem;
+            background: rgba(239, 68, 68, 0.05);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+        
+        .security-note-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--red);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .security-note-text {
+            font-size: 0.85rem;
+            color: var(--gray-600);
+            line-height: 1.4;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 2rem 1.5rem;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+                margin-bottom: 3rem;
+            }
+            
+            .header-text h2 {
+                font-size: 1.75rem;
+            }
+            
+            .section {
+                padding: 1.5rem;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .btn {
+                justify-content: center;
+            }
+        }
+        
+        /* Animations */
+        .container > * {
+            animation: fadeInUp 0.4s ease forwards;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        
+        .header { animation-delay: 0.1s; }
+        .main-content { animation-delay: 0.2s; }
+        .security-note { animation-delay: 0.3s; }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Selection */
+        ::selection {
+            background: var(--black);
+            color: var(--white);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <div class="admin-badge">A</div>
+                <div class="header-text">
+                    <h2>Admin Dashboard</h2>
+                    <p class="header-subtitle">System Administration Panel</p>
+                </div>
+            </div>
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                <span>Online</span>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="section">
+                <div class="section-header">
+                    <h3 class="section-title">Report Generation</h3>
+                    <p class="section-description">
+                        Generate comprehensive HR reports with real-time data analysis. 
+                        Reports support rich formatting and can be exported in multiple formats.
+                    </p>
+                </div>
+                
+                <form method="POST" action="/admin/report" id="reportForm">
+                    <div class="form-group">
+                        <label class="form-label" for="report">Report Name</label>
+                        <input 
+                            type="text" 
+                            id="report"
+                            name="report" 
+                            class="form-input" 
+                            placeholder="Enter report name (e.g., Monthly Employee Summary)"
+                            required
+                        >
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Generate Report</button>
+                        <button type="button" class="btn" onclick="clearForm()">Clear</button>
+                    </div>
+                </form>
+                
+                <div class="info-panel">
+                    <div class="info-title">Report Capabilities</div>
+                    <p class="info-text">
+                        Generated reports support HTML formatting for rich text presentation, 
+                        charts, and tabular data. All reports are logged and can be accessed 
+                        through the report history panel.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="security-note">
+            <div class="security-note-title">Security Information</div>
+            <p class="security-note-text">
+                Session authenticated with CSRF protection enabled.<br>
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        // CSRF protection: base64 of username
+        var csrf = btoa("admin");
+        document.getElementById('csrfToken').textContent = csrf;
+        console.log("CSRF token: " + csrf);
+        
+        // Form utilities
+        function clearForm() {
+            document.getElementById('reportForm').reset();
+            document.getElementById('report').focus();
+        }
+        
+        // Form validation
+        document.getElementById('reportForm').addEventListener('submit', function(e) {
+            const reportName = document.getElementById('report').value.trim();
+            if (!reportName) {
+                e.preventDefault();
+                alert('Please enter a report name.');
+                return false;
+            }
+        });
+        
+        // Auto-focus on load
+        window.addEventListener('load', function() {
+            document.getElementById('report').focus();
+        });
+    </script>
+</body>
+</html>

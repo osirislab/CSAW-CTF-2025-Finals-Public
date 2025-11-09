@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Logs - HR Portal</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --black: #000000;
+            --white: #ffffff;
+            --gray-50: #fafafa;
+            --gray-100: #f5f5f5;
+            --gray-200: #e5e5e5;
+            --gray-300: #d4d4d4;
+            --gray-400: #a3a3a3;
+            --gray-500: #737373;
+            --gray-600: #525252;
+            --gray-700: #404040;
+            --gray-800: #262626;
+            --gray-900: #171717;
+            --red: #ef4444;
+            --yellow: #f59e0b;
+            --green: #22c55e;
+            --blue: #3b82f6;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--white);
+            color: var(--black);
+            line-height: 1.6;
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .logs-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--gray-800);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .header-text h1 {
+            font-size: 1.75rem;
+            font-weight: 300;
+            letter-spacing: -0.02em;
+            color: var(--black);
+            margin-bottom: 0.25rem;
+        }
+        
+        .header-subtitle {
+            font-size: 0.9rem;
+            color: var(--gray-500);
+            font-weight: 400;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: 1px solid var(--gray-200);
+            background: var(--white);
+            color: var(--black);
+            font-size: 0.875rem;
+            font-weight: 500;
+            font-family: inherit;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            letter-spacing: -0.01em;
+        }
+        
+        .btn:hover {
+            background: var(--gray-50);
+            border-color: var(--gray-300);
+        }
+        
+        .btn-primary {
+            background: var(--black);
+            color: var(--white);
+            border-color: var(--black);
+        }
+        
+        .btn-primary:hover {
+            background: var(--gray-800);
+            border-color: var(--gray-800);
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            gap: 1rem;
+        }
+        
+        .controls-left {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .filter-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--gray-200);
+            background: var(--white);
+            color: var(--gray-600);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        
+        .filter-btn.active {
+            background: var(--black);
+            color: var(--white);
+            border-color: var(--black);
+        }
+        
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid var(--gray-200);
+            padding: 0.5rem 1rem;
+            background: var(--white);
+        }
+        
+        .search-input {
+            border: none;
+            outline: none;
+            font-size: 0.875rem;
+            font-family: inherit;
+            background: transparent;
+            color: var(--black);
+            width: 200px;
+        }
+        
+        .log-stats {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.8rem;
+            color: var(--gray-500);
+        }
+        
+        .logs-container {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            min-height: 600px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .logs-header {
+            background: var(--white);
+            border-bottom: 1px solid var(--gray-200);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--gray-600);
+        }
+        
+        .logs-content {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            padding: 1.5rem;
+            height: 550px;
+            overflow-y: auto;
+            background: var(--white);
+        }
+        
+        .log-entry {
+            display: flex;
+            margin-bottom: 1px;
+            padding: 0.25rem 0;
+            border-radius: 2px;
+            transition: background-color 0.1s ease;
+        }
+        
+        .log-entry:hover {
+            background: var(--gray-50);
+        }
+        
+        .log-timestamp {
+            color: var(--gray-500);
+            margin-right: 1rem;
+            white-space: nowrap;
+            min-width: 180px;
+        }
+        
+        .log-level {
+            margin-right: 1rem;
+            font-weight: 500;
+            min-width: 60px;
+            text-align: center;
+            font-size: 0.75rem;
+            padding: 0.1rem 0.5rem;
+            border-radius: 2px;
+        }
+        
+        .log-level.INFO {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--green);
+        }
+        
+        .log-level.WARNING {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--yellow);
+        }
+        
+        .log-level.ERROR {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--red);
+        }
+        
+        .log-level.DEBUG {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--blue);
+        }
+        
+        .log-message {
+            flex: 1;
+            color: var(--gray-800);
+            word-break: break-word;
+        }
+        
+        .log-message.raw {
+            color: var(--gray-600);
+            font-style: italic;
+        }
+        
+        .add-log-section {
+            margin-top: 3rem;
+            padding: 2rem;
+            border: 1px solid var(--gray-200);
+            background: var(--white);
+        }
+        
+        .section-title {
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: var(--black);
+            margin-bottom: 1rem;
+            letter-spacing: -0.01em;
+        }
+        
+        .log-form {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+        
+        .form-group {
+            flex: 1;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--gray-600);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--gray-200);
+            background: var(--white);
+            font-size: 0.9rem;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--black);
+            transition: all 0.15s ease;
+            outline: none;
+        }
+        
+        .form-input:focus {
+            border-color: var(--black);
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 1rem;
+            margin-bottom: 2rem;
+            color: var(--red);
+            font-size: 0.9rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--gray-500);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 1.5rem;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1.5rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .log-form {
+                flex-direction: column;
+            }
+        }
+        
+        /* Scrollbar styling */
+        .logs-content::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .logs-content::-webkit-scrollbar-track {
+            background: var(--gray-100);
+        }
+        
+        .logs-content::-webkit-scrollbar-thumb {
+            background: var(--gray-300);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <div class="logs-icon">L</div>
+                <div class="header-text">
+                    <h1>System Logs</h1>
+                    <p class="header-subtitle">Real-time application monitoring</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="btn" onclick="window.location.reload()">Refresh</button>
+                <button class="btn" onclick="downloadLogs()">Download</button>
+                <a href="/admin" class="btn btn-primary">Dashboard</a>
+            </div>
+        </div>
+        
+        {% if error %}
+        <div class="error-message">
+            Error loading logs: {{ error }}
+        </div>
+        {% endif %}
+        
+        <div class="controls">
+            <div class="controls-left">
+                <div class="filter-group">
+                    <button class="filter-btn active" onclick="filterLogs('ALL')">All</button>
+                    <button class="filter-btn" onclick="filterLogs('INFO')">Info</button>
+                    <button class="filter-btn" onclick="filterLogs('WARNING')">Warning</button>
+                    <button class="filter-btn" onclick="filterLogs('ERROR')">Error</button>
+                    <button class="filter-btn" onclick="filterLogs('DEBUG')">Debug</button>
+                </div>
+                <div class="search-box">
+                    <input type="text" class="search-input" placeholder="Search logs..." oninput="searchLogs(this.value)">
+                </div>
+            </div>
+            <div class="log-stats">
+                <span>{{ logs|length }} entries</span>
+                <span id="load-time"></span><script>document.getElementById('load-time').textContent = new Date().toLocaleTimeString();</script>
+
+            </div>
+        </div>
+        
+        <div class="logs-container">
+            <div class="logs-header">
+                <span>Log Entries</span>
+                <span>app.log</span>
+            </div>
+            <div class="logs-content" id="logsContent">
+                {% if logs %}
+                    {% for log in logs %}
+                    <div class="log-entry" data-level="{{ log.level }}" data-type="{{ log.type }}">
+                        <span class="log-timestamp">{{ log.timestamp }}</span>
+                        <span class="log-level {{ log.level }}">{{ log.level }}</span>
+                        <span class="log-message {% if log.type == 'raw' %}raw{% endif %}">{{ log.message }}</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <p>No log entries found.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentFilter = 'ALL';
+        let currentSearch = '';
+        
+        function filterLogs(level) {
+            currentFilter = level;
+            
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            applyFilters();
+        }
+        
+        function searchLogs(query) {
+            currentSearch = query.toLowerCase();
+            applyFilters();
+        }
+        
+        function applyFilters() {
+            const entries = document.querySelectorAll('.log-entry');
+            
+            entries.forEach(entry => {
+                const level = entry.dataset.level;
+                const text = entry.textContent.toLowerCase();
+                
+                let show = true;
+                
+                // Apply level filter
+                if (currentFilter !== 'ALL' && level !== currentFilter) {
+                    show = false;
+                }
+                
+                // Apply search filter
+                if (currentSearch && !text.includes(currentSearch)) {
+                    show = false;
+                }
+                
+                entry.style.display = show ? 'flex' : 'none';
+            });
+        }
+        
+        function downloadLogs() {
+            const entries = document.querySelectorAll('.log-entry');
+            const content = Array.from(entries).map(entry => {
+                const timestamp = entry.querySelector('.log-timestamp').textContent;
+                const level = entry.querySelector('.log-level').textContent;
+                const message = entry.querySelector('.log-message').textContent;
+                return `${timestamp} - ${level} - ${message}`;
+            }).join('\n');
+            
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `system-logs-${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // Auto-scroll to bottom on load
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.getElementById('logsContent');
+            container.scrollTop = container.scrollHeight;
+        });
+    </script>
+</body>
+</html>

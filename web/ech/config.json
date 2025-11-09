@@ -1,0 +1,10 @@
+{
+  "server_name": "ECH-DNS-CTF",
+  "version": "1.0",
+  "public_domain": "nyu.edu",
+  "private_domain": "csaw.io",
+  "public_ip": "10.0.1.1",
+  "private_ip": "172.16.0.100",
+  "ech_version": "0xfe0d",
+  "ech_key": "placeholder_will_be_generated"
+}

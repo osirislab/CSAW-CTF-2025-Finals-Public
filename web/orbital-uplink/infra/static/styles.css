@@ -1,0 +1,210 @@
+:root {
+  --bg: #0b1020;
+  --panel: #121a33;
+  --card: #152042;
+  --text: #e6ecff;
+  --muted: #9bb0ff;
+  --accent: #6ea8fe;
+  --accent-hover: #8dbdff;
+  --notice: #24345f;
+  --good: #2f8f6a;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.15);
+}
+
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: var(--text);
+  background: radial-gradient(1200px 600px at 20% -10%, #1a2458 0%, var(--bg) 48%, var(--bg) 100%);
+  line-height: 1.5;
+}
+
+.wrap {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.header {
+  border-bottom: 1px solid var(--border);
+  padding: 20px 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.header h1 {
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  font-size: 1.6rem;
+}
+.sub {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.logout {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.logout button {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.logout button:hover {
+  background: rgba(255,255,255,0.08);
+}
+.badge {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--good);
+  color: white;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 18px 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin: 18px 0;
+}
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+label {
+  display: block;
+  margin: 10px 0 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+input[type="text"], input[type="password"], input[type="file"] {
+  width: 100%;
+  padding: 10px 12px;
+  background: #0f1733;
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease;
+}
+input[type="text"]:focus, input[type="password"]:focus, input[type="file"]:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+button, .btn {
+  display: inline-block;
+  background: var(--accent);
+  color: #051022;
+  border: 0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background 0.2s ease;
+}
+button:hover, .btn:hover {
+  background: var(--accent-hover);
+}
+
+.notice {
+  background: var(--notice);
+  border-left: 4px solid var(--accent);
+  padding: 10px 12px;
+  border-radius: 8px;
+}
+
+ul.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+ul.list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--border);
+}
+ul.list li:last-child {
+  border-bottom: none;
+}
+.muted {
+  color: var(--muted);
+}
+
+.footer {
+  margin: 40px 0;
+  color: var(--muted);
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+/* Upload form spacing and drag feel */
+.upload-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.file-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.file-input-group input[type="file"] {
+  padding: 12px;
+  border: 2px dashed var(--border);
+  background: rgba(255, 255, 255, 0.02);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.file-input-group input[type="file"]:hover {
+  border-color: var(--accent);
+  background: rgba(110, 168, 254, 0.05);
+}
+
+.small-btn {
+  padding: 6px 10px;
+  font-size: 0.85rem;
+}
+
+/* Uploads list hover feedback */
+ul.list li:hover {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+}
+

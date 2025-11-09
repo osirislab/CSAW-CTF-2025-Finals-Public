@@ -1,0 +1,33 @@
+FROM ubuntu:22.04
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    openssl \
+    curl \
+    dnsutils \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python packages
+RUN pip3 install flask cryptography dnslib
+
+# Create working directory
+WORKDIR /app
+
+# Copy application files
+COPY ech_dns_server.py /app/
+COPY generate_ech_config.py /app/
+COPY config.json /app/
+
+# Generate ECH configuration and keys
+RUN python3 generate_ech_config.py
+
+# Expose DNS over HTTPS port
+EXPOSE 8053
+
+# Make scripts executable
+RUN chmod +x /app/ech_dns_server.py /app/generate_ech_config.py
+
+# Run the server
+CMD ["python3", "ech_dns_server.py"]

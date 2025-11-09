@@ -1,0 +1,14 @@
+[package]
+name = "guest"
+version = "0.1.0"
+edition = "2024"
+
+[features]
+guest = []
+
+[dependencies]
+jolt = { package = "jolt-sdk", git = "https://github.com/a16z/jolt", rev = "710e678bfa3bcdd3f3a229485308ac7a3841f5ee" }
+serde = { version = "1", default-features = false, features = ["derive"] }
+
+[lib]
+crate-type = ["rlib"]

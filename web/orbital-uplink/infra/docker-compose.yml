@@ -1,0 +1,7 @@
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      SECRET_KEY: "689d887e-694c-8331-a8d1-35e69"

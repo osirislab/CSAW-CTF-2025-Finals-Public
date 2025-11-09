@@ -1,0 +1,624 @@
+diff --git a/Cargo.lock b/Cargo.lock
+index 7eb708b0..a1dc1fb5 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -1037,22 +1037,20 @@ checksum = "37909eebbb50d72f9059c3b6d82c0463f2ff062c9e95845c43a6c9c0355411be"
+ name = "fibonacci"
+ version = "0.1.0"
+ dependencies = [
++ "anyhow",
+  "ark-serialize",
+- "fibonacci-guest",
++ "base64",
++ "guest",
++ "hex",
+  "jolt-core",
+  "jolt-sdk",
++ "postcard",
++ "tempfile",
+  "tracer",
+  "tracing",
+  "tracing-subscriber",
+ ]
+ 
+-[[package]]
+-name = "fibonacci-guest"
+-version = "0.1.0"
+-dependencies = [
+- "jolt-sdk",
+-]
+-
+ [[package]]
+ name = "find-msvc-tools"
+ version = "0.1.3"
+@@ -1241,6 +1239,14 @@ version = "0.3.3"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "0cc23270f6e1808e30a928bdc84dea0b9b4136a8bc82338574f23baf47bbd280"
+ 
++[[package]]
++name = "guest"
++version = "0.1.0"
++dependencies = [
++ "jolt-sdk",
++ "serde",
++]
++
+ [[package]]
+ name = "h2"
+ version = "0.4.12"
+diff --git a/examples/fibonacci/Cargo.toml b/examples/fibonacci/Cargo.toml
+index 0314cf4e..71cf4219 100644
+--- a/examples/fibonacci/Cargo.toml
++++ b/examples/fibonacci/Cargo.toml
+@@ -4,11 +4,15 @@ version = "0.1.0"
+ edition = "2021"
+ 
+ [dependencies]
++anyhow = "1"
++base64 = "0.22"
++hex = "0.4"
+ jolt-sdk = { path = "../../jolt-sdk", features = ["host"] }
+ jolt-core = { path = "../../jolt-core", features = ["host"] }
++postcard = { version = "1.1", default-features = false, features = ["use-std", "alloc"] }
++tempfile = "3"
+ tracer = { path = "../../tracer" }
+ ark-serialize = { version = "0.5.0", default-features = false }
+-tracing-subscriber = "0.3"
++tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }
+ tracing = "0.1"
+-guest = { package = "fibonacci-guest", path = "./guest" }
+-
++guest = { package = "guest", path = "./guest" }
+diff --git a/examples/fibonacci/guest/Cargo.toml b/examples/fibonacci/guest/Cargo.toml
+index 785c8d1a..d692d714 100644
+--- a/examples/fibonacci/guest/Cargo.toml
++++ b/examples/fibonacci/guest/Cargo.toml
+@@ -1,5 +1,5 @@
+ [package]
+-name = "fibonacci-guest"
++name = "guest"
+ version = "0.1.0"
+ edition = "2021"
+ 
+@@ -8,3 +8,4 @@ guest = []
+ 
+ [dependencies]
+ jolt = { package = "jolt-sdk", path = "../../../jolt-sdk" }
++serde = { version = "1", default-features = false, features = ["derive"] }
+diff --git a/examples/fibonacci/guest/src b/examples/fibonacci/guest/src
+new file mode 120000
+index 00000000..f3b73901
+--- /dev/null
++++ b/examples/fibonacci/guest/src
+@@ -0,0 +1 @@
++../../../../guest/src
+\ No newline at end of file
+diff --git a/examples/fibonacci/guest/src/lib.rs b/examples/fibonacci/guest/src/lib.rs
+deleted file mode 100644
+index 8fb7258c..00000000
+--- a/examples/fibonacci/guest/src/lib.rs
++++ /dev/null
+@@ -1,19 +0,0 @@
+-#![cfg_attr(feature = "guest", no_std)]
+-use jolt::{end_cycle_tracking, start_cycle_tracking};
+-
+-#[jolt::provable(memory_size = 10240, max_trace_length = 65536)]
+-fn fib(n: u32) -> u128 {
+-    let mut a: u128 = 0;
+-    let mut b: u128 = 1;
+-    let mut sum: u128;
+-
+-    start_cycle_tracking("fib_loop"); // Use `start_cycle_tracking("{name}")` to start a cycle span
+-
+-    for _ in 1..n {
+-        sum = a + b;
+-        a = b;
+-        b = sum;
+-    }
+-    end_cycle_tracking("fib_loop"); // Use `end_cycle_tracking("{name}")` to end a cycle span
+-    b
+-}
+diff --git a/examples/fibonacci/guest/src/main.rs b/examples/fibonacci/guest/src/main.rs
+deleted file mode 100644
+index cde47851..00000000
+--- a/examples/fibonacci/guest/src/main.rs
++++ /dev/null
+@@ -1,5 +0,0 @@
+-#![cfg_attr(feature = "guest", no_std)]
+-#![no_main]
+-
+-#[allow(unused_imports)]
+-use fibonacci_guest::*;
+diff --git a/examples/fibonacci/src/dishonest_prover.rs b/examples/fibonacci/src/dishonest_prover.rs
+index 891cfb39..aa7437da 100644
+--- a/examples/fibonacci/src/dishonest_prover.rs
++++ b/examples/fibonacci/src/dishonest_prover.rs
+@@ -1,37 +1,36 @@
+ #![allow(non_snake_case)]
++use std::cell::RefCell;
+ use std::collections::BTreeMap;
+ use std::rc::Rc;
+-use std::cell::RefCell;
+ 
+-use jolt_sdk::{postcard, JoltField, JoltDevice, F, PCS, MemoryConfig};
++use guest::{AllocationOutput, Command, HeapState};
+ use jolt_core::{
+-    transcripts::{Transcript, Blake2bTranscript as FS},
++    host::Program,
+     poly::{
+         commitment::commitment_scheme::CommitmentScheme,
+         opening_proof::{OpeningId, SumcheckId, VerifierOpeningAccumulator},
+     },
+-    host::Program,
+-
+-    subprotocols::sumcheck::{SumcheckInstance},
++    subprotocols::sumcheck::SumcheckInstance,
++    subprotocols::sumcheck::SumcheckInstanceProof,
++    transcripts::{Blake2bTranscript as FS, Transcript},
++    utils::gaussian_elimination::gaussian_elimination,
+     zkvm::{
+-        JoltProverPreprocessing,
+-        JoltVerifierPreprocessing,
+-        instruction_lookups::LookupsDag,
+-        ram::RamDag,
+-        registers::RegistersDag,
+-        spartan::SpartanDag,
+         bytecode::BytecodeDag,
+-        witness::{compute_d_parameter, VirtualPolynomial, AllCommittedPolynomials},
+         dag::{
+             jolt_dag::JoltDAG,
+             proof_serialization::JoltProof,
+             stage::SumcheckStages,
+             state_manager::{ProofData, ProofKeys, StateManager},
+-        }
++        },
++        instruction_lookups::LookupsDag,
++        ram::RamDag,
++        registers::RegistersDag,
++        spartan::SpartanDag,
++        witness::{compute_d_parameter, AllCommittedPolynomials, VirtualPolynomial},
++        JoltProverPreprocessing, JoltVerifierPreprocessing,
+     },
+-    utils::gaussian_elimination::gaussian_elimination,
+-    subprotocols::sumcheck::{SumcheckInstanceProof}
+ };
++use jolt_sdk::{postcard, JoltDevice, JoltField, MemoryConfig, F, PCS};
+ use tracer::instruction::Cycle;
+ 
+ /// Prove a program, but modify the I/O as desired
+@@ -40,11 +39,8 @@ fn prove_with_fake_io(
+     vpreprocessing: &JoltVerifierPreprocessing<F, PCS>,
+     elf_contents: &[u8],
+     inputs: &[u8],
+-    modify_io: impl Fn(&mut JoltDevice)
+-) -> (
+-    JoltProof<F, PCS, FS>,
+-    JoltDevice
+-) {
++    modify_io: impl Fn(&mut JoltDevice),
++) -> (JoltProof<F, PCS, FS>, JoltDevice) {
+     // First the normal proving procedure
+     let memory_config = MemoryConfig {
+         max_input_size: preprocessing.shared.memory_layout.max_input_size,
+@@ -77,7 +73,11 @@ fn prove_with_fake_io(
+         StateManager::new_prover(preprocessing, trace, program_io.clone(), final_memory_state);
+     let (mut proof, _) = JoltDAG::prove(state_manager).ok().unwrap();
+ 
+-    fn extract_claims_from_proof(proof: JoltProof<F, PCS, FS>, vpreprocessing: &JoltVerifierPreprocessing<F, PCS>, program_io: JoltDevice) -> BTreeMap<ProofKeys, (F, F)> {
++    fn extract_claims_from_proof(
++        proof: JoltProof<F, PCS, FS>,
++        vpreprocessing: &JoltVerifierPreprocessing<F, PCS>,
++        program_io: JoltDevice,
++    ) -> BTreeMap<ProofKeys, (F, F)> {
+         let vstate_manager = proof.to_verifier_state_manager(vpreprocessing, program_io);
+         extract_claims(vstate_manager)
+     }
+@@ -93,12 +93,16 @@ fn prove_with_fake_io(
+     // we modify, we do this by diffing two results with the evaluation incremented
+     let s3claim0 = claims.get(&ProofKeys::Stage3Sumcheck).unwrap();
+     let s4claim0 = claims.get(&ProofKeys::Stage4Sumcheck).unwrap();
+-    
+-    let rafkey = OpeningId::Virtual(VirtualPolynomial::InstructionRa, SumcheckId::InstructionReadRaf);
++
++    let rafkey = OpeningId::Virtual(
++        VirtualPolynomial::InstructionRa,
++        SumcheckId::InstructionReadRaf,
++    );
+ 
+     // these two have to be equal due to an assertions
+     let valkey = OpeningId::Virtual(VirtualPolynomial::RamRa, SumcheckId::RamValEvaluation);
+-    let valfinalkey = OpeningId::Virtual(VirtualPolynomial::RamRa, SumcheckId::RamValFinalEvaluation);
++    let valfinalkey =
++        OpeningId::Virtual(VirtualPolynomial::RamRa, SumcheckId::RamValFinalEvaluation);
+ 
+     *get_mut_claim(&mut proof, &rafkey) += F::from(1);
+ 
+@@ -171,7 +175,9 @@ pub fn extract_claims<
+     let mut registers_dag = RegistersDag::default();
+     let mut ram_dag = RamDag::new_verifier(&state_manager);
+     let mut bytecode_dag = BytecodeDag::default();
+-    spartan_dag.stage1_verify(&mut state_manager).expect("Stage 1 failed");
++    spartan_dag
++        .stage1_verify(&mut state_manager)
++        .expect("Stage 1 failed");
+ 
+     // Stage 2:
+     let stage2_instances: Vec<_> = std::iter::empty()
+@@ -196,12 +202,15 @@ pub fn extract_claims<
+ 
+     let transcript = state_manager.get_transcript();
+     let opening_accumulator = state_manager.get_verifier_accumulator();
+-    output_claims.insert(ProofKeys::Stage2Sumcheck, extract_sumcheck_claims(
+-        stage2_proof,
+-        stage2_instances_ref,
+-        Some(opening_accumulator.clone()),
+-        &mut *transcript.borrow_mut(),
+-    ));
++    output_claims.insert(
++        ProofKeys::Stage2Sumcheck,
++        extract_sumcheck_claims(
++            stage2_proof,
++            stage2_instances_ref,
++            Some(opening_accumulator.clone()),
++            &mut *transcript.borrow_mut(),
++        ),
++    );
+ 
+     drop(proofs);
+ 
+@@ -226,12 +235,15 @@ pub fn extract_claims<
+         _ => panic!("Invalid proof type for stage 3"),
+     };
+ 
+-    output_claims.insert(ProofKeys::Stage3Sumcheck, extract_sumcheck_claims(
+-        stage3_proof,
+-        stage3_instances_ref,
+-        Some(opening_accumulator.clone()),
+-        &mut *transcript.borrow_mut(),
+-    ));
++    output_claims.insert(
++        ProofKeys::Stage3Sumcheck,
++        extract_sumcheck_claims(
++            stage3_proof,
++            stage3_instances_ref,
++            Some(opening_accumulator.clone()),
++            &mut *transcript.borrow_mut(),
++        ),
++    );
+ 
+     drop(proofs);
+ 
+@@ -255,12 +267,15 @@ pub fn extract_claims<
+         _ => panic!("Invalid proof type for stage 4"),
+     };
+ 
+-    output_claims.insert(ProofKeys::Stage4Sumcheck, extract_sumcheck_claims(
+-        stage4_proof,
+-        stage4_instances_ref,
+-        Some(opening_accumulator.clone()),
+-        &mut *transcript.borrow_mut(),
+-    ));
++    output_claims.insert(
++        ProofKeys::Stage4Sumcheck,
++        extract_sumcheck_claims(
++            stage4_proof,
++            stage4_instances_ref,
++            Some(opening_accumulator.clone()),
++            &mut *transcript.borrow_mut(),
++        ),
++    );
+     output_claims
+ }
+ 
+@@ -295,8 +310,9 @@ pub fn extract_sumcheck_claims<F: JoltField, ProofTranscript: Transcript>(
+         })
+         .sum();
+ 
+-    let (output_claim, r_sumcheck) =
+-        proof.verify(claim, max_num_rounds, max_degree, transcript).expect("sumcheck verification failed");
++    let (output_claim, r_sumcheck) = proof
++        .verify(claim, max_num_rounds, max_degree, transcript)
++        .expect("sumcheck verification failed");
+ 
+     let expected_output_claim = sumcheck_instances
+         .iter()
+@@ -318,14 +334,15 @@ pub fn extract_sumcheck_claims<F: JoltField, ProofTranscript: Transcript>(
+     (output_claim, expected_output_claim)
+ }
+ 
+-
+ pub fn prove_dishonestly(
+     program: &mut Program,
+     prover_preprocessing: &JoltProverPreprocessing<F, PCS>,
+-    input: u32,
+-    fake_output: u128,
++    state: HeapState,
++    command: Command,
++    fake_output: AllocationOutput,
+ ) -> (JoltProof<F, PCS, FS>, JoltDevice) {
+-    let verifier_preprocessing = guest::verifier_preprocessing_from_prover_fib(prover_preprocessing);
++    let verifier_preprocessing =
++        guest::verifier_preprocessing_from_prover_allocation_gate(prover_preprocessing);
+     let elf_contents = program
+         .get_elf_contents()
+         .as_deref()
+@@ -333,7 +350,8 @@ pub fn prove_dishonestly(
+         .to_vec();
+ 
+     let mut input_bytes = vec![];
+-    input_bytes.append(&mut postcard::to_stdvec(&input).unwrap());
++    input_bytes.append(&mut postcard::to_stdvec(&state).unwrap());
++    input_bytes.append(&mut postcard::to_stdvec(&command).unwrap());
+ 
+     let (proof, io_device) = prove_with_fake_io(
+         prover_preprocessing,
+diff --git a/examples/fibonacci/src/main.rs b/examples/fibonacci/src/main.rs
+index d9a11c0f..85b3b910 100644
+--- a/examples/fibonacci/src/main.rs
++++ b/examples/fibonacci/src/main.rs
+@@ -1,59 +1,164 @@
+-use jolt_sdk::serialize_and_print_size;
+-use std::time::Instant;
++use std::env;
++use std::path::{Path, PathBuf};
++
++use anyhow::{anyhow, Context, Result};
++use base64::engine::general_purpose::STANDARD as BASE64;
++use base64::Engine;
++use guest::{AllocationOutput, Command, HeapState};
++use jolt_sdk::{JoltDevice, RV64IMACJoltProof, Serializable};
++use postcard::{from_bytes, to_allocvec};
++use tempfile::Builder;
+ use tracing::info;
+ 
+ mod dishonest_prover;
++mod preprocessing;
+ 
+-pub fn main() {
+-    tracing_subscriber::fmt::init();
++fn main() -> Result<()> {
++    tracing_subscriber::fmt()
++        .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
++        .with_target(false)
++        .init();
+ 
+-    let save_to_disk = std::env::args().any(|arg| arg == "--save");
++    let mut args = env::args().skip(1);
++    let state_hex = args.next().context("missing state hex")?;
++    let command_kind = args.next().context("missing command kind")?;
++    let command_arg = args.next().context("missing command argument")?;
++    let output_hex = args.next().context("missing forged output hex")?;
++    let target_dir = args
++        .next()
++        .map(PathBuf::from)
++        .unwrap_or_else(|| PathBuf::from("./artifacts"));
+ 
+-    let target_dir = "/tmp/jolt-guest-targets";
+-    let mut program = guest::compile_fib(target_dir);
++    info!(?target_dir, "forging allocation proof");
+ 
+-    let prover_preprocessing = guest::preprocess_prover_fib(&mut program);
+-    let verifier_preprocessing =
+-        guest::verifier_preprocessing_from_prover_fib(&prover_preprocessing);
++    let state = decode_heap_state(&state_hex)?;
++    let command = parse_command(&command_kind, &command_arg)?;
++    let mut forged_output = decode_allocation_output(&output_hex)?;
++    if env::var("DEBUG_DECODE").is_ok() {
++        println!(
++            "decoded_input: base={:#x} chunk={} mask={:#x} ptr={:#x}",
++            forged_output.state.base_ptr(),
++            forged_output.state.chunk_size(),
++            forged_output.state.bin_mask(),
++            forged_output.ptr
++        );
++    }
+ 
+-    if save_to_disk {
+-        serialize_and_print_size(
+-            "Verifier Preprocessing",
+-            "/tmp/jolt_verifier_preprocessing.dat",
+-            &verifier_preprocessing,
+-        )
+-        .expect("Could not serialize preprocessing.");
++    if let Ok(ptr_env) = env::var("FORGED_PTR") {
++        let ptr = parse_u64(ptr_env.trim())?;
++        forged_output.ptr = ptr;
++        info!(
++            ptr = format_args!("0x{ptr:x}"),
++            "overriding allocation pointer"
++        );
+     }
+ 
+-    let verify_fib = guest::build_verifier_fib(verifier_preprocessing);
++    let artifacts = forge_proof(state, command, forged_output, &target_dir)?;
++    if !artifacts.is_valid {
++        return Err(anyhow!("forged proof failed verifier"));
++    }
+ 
+-    let program_summary = guest::analyze_fib(10);
+-    program_summary
+-        .write_to_file("fib_10.txt".into())
+-        .expect("should write");
++    let proof_bytes = artifacts
++        .proof
++        .clone()
++        .serialize_to_bytes()
++        .map_err(|e| anyhow!("serialize forged proof: {e}"))?;
++    let proof_b64 = BASE64.encode(&proof_bytes);
++    let output_hex = hex::encode(&artifacts.forged_output_bytes);
+ 
+-    let trace_file = "/tmp/fib_trace.bin";
+-    guest::trace_fib_to_file(trace_file, 50);
+-    info!("Trace file written to: {trace_file}.");
++    println!("forged_output_hex={}", output_hex);
++    println!("panic={}", artifacts.io_device.panic);
++    println!("ptr={:#x}", artifacts.forged_output.ptr);
++    println!("is_valid={}", artifacts.is_valid);
++    println!("proof_b64={}", proof_b64);
+ 
+-    let now = Instant::now();
+-    let output = 1337u128;
+-    let (proof, io_device) = dishonest_prover::prove_dishonestly(
+-            &mut program,
+-            &prover_preprocessing,
+-            50,
+-            output // fake_output
+-        );
+-    info!("Prover runtime: {} s", now.elapsed().as_secs_f64());
++    Ok(())
++}
++
++struct ForgeArtifacts {
++    proof: RV64IMACJoltProof,
++    io_device: JoltDevice,
++    forged_output_bytes: Vec<u8>,
++    is_valid: bool,
++    forged_output: AllocationOutput,
++}
++
++fn forge_proof(
++    state: HeapState,
++    command: Command,
++    fake_output: AllocationOutput,
++    artifacts_dir: &Path,
++) -> Result<ForgeArtifacts> {
++    info!(?state, ?command, artifacts_dir = %artifacts_dir.display(), "forging proof");
++
++    let preprocessing::PreprocessingBundle { prover, verifier } =
++        preprocessing::load_or_create_preprocessing(artifacts_dir)
++            .context("load allocation gate preprocessing")?;
++
++    let temp_dir = Builder::new()
++        .prefix("allocation-gate-build-")
++        .tempdir()
++        .context("create temporary compilation directory")?;
++    let compile_target = temp_dir.path().to_string_lossy().to_string();
++    info!(compile_target = %compile_target, "compiling guest program");
+ 
+-    if save_to_disk {
+-        serialize_and_print_size("Proof", "/tmp/fib_proof.bin", &proof)
+-            .expect("Could not serialize proof.");
+-        serialize_and_print_size("io_device", "/tmp/fib_io_device.bin", &io_device)
+-            .expect("Could not serialize io_device.");
++    let mut program = guest::compile_allocation_gate(&compile_target);
++    info!("compiled guest program");
++
++    let (proof_raw, io_device) =
++        dishonest_prover::prove_dishonestly(&mut program, &prover, state, command, fake_output);
++    info!("dishonest prover returned");
++    let proof: RV64IMACJoltProof = proof_raw;
++
++    let verify_fn = guest::build_verifier_allocation_gate(verifier);
++    let is_valid = verify_fn(state, command, fake_output, io_device.panic, proof.clone());
++    assert!(is_valid);
++
++    let forged_output_bytes =
++        to_allocvec(&fake_output).map_err(|e| anyhow!("serialize forged output bytes: {e}"))?;
++
++    Ok(ForgeArtifacts {
++        proof,
++        io_device,
++        forged_output_bytes,
++        is_valid,
++        forged_output: fake_output,
++    })
++}
++
++fn decode_heap_state(hex_str: &str) -> Result<HeapState> {
++    let bytes = hex::decode(hex_str.trim()).context("decode state hex")?;
++    from_bytes(&bytes).map_err(|e| anyhow!("state decode failed: {e}"))
++}
++
++fn decode_allocation_output(hex_str: &str) -> Result<AllocationOutput> {
++    let bytes = hex::decode(hex_str.trim()).context("decode output hex")?;
++    from_bytes(&bytes).map_err(|e| anyhow!("output decode failed: {e}"))
++}
++
++fn parse_command(kind: &str, arg: &str) -> Result<Command> {
++    match kind {
++        "alloc" => {
++            let requested: u32 = arg
++                .parse()
++                .or_else(|_| u32::from_str_radix(arg.trim_start_matches("0x"), 16))
++                .context("parse alloc size")?;
++            Ok(Command::Alloc {
++                requested_size: requested,
++            })
++        }
++        "free" => {
++            let ptr = parse_u64(arg).context("parse free pointer")?;
++            Ok(Command::Free { ptr })
++        }
++        other => Err(anyhow!("unknown command kind: {other}")),
+     }
++}
+ 
+-    let is_valid = verify_fib(50, output, io_device.panic, proof);
+-    info!("output: {output}");
+-    info!("valid: {is_valid}");
++fn parse_u64(value: &str) -> Result<u64> {
++    if let Some(stripped) = value.strip_prefix("0x") {
++        u64::from_str_radix(stripped, 16).context("parse hex u64")
++    } else {
++        value.parse::<u64>().context("parse decimal u64")
++    }
+ }
+diff --git a/examples/fibonacci/src/preprocessing.rs b/examples/fibonacci/src/preprocessing.rs
+new file mode 100644
+index 00000000..48472d88
+--- /dev/null
++++ b/examples/fibonacci/src/preprocessing.rs
+@@ -0,0 +1,53 @@
++use std::fs;
++use std::path::Path;
++
++use anyhow::{Context, Result};
++use jolt_sdk::{JoltProverPreprocessing, JoltVerifierPreprocessing, F, PCS};
++use tempfile::Builder;
++
++pub struct PreprocessingBundle {
++    pub prover: JoltProverPreprocessing<F, PCS>,
++    pub verifier: JoltVerifierPreprocessing<F, PCS>,
++}
++
++pub fn load_or_create_preprocessing<P: AsRef<Path>>(
++    artifacts_dir: P,
++) -> Result<PreprocessingBundle> {
++    let artifacts_dir = artifacts_dir.as_ref();
++    fs::create_dir_all(artifacts_dir).context("create artifacts directory")?;
++
++    let artifacts_str = artifacts_dir
++        .to_str()
++        .map(|s| s.to_owned())
++        .unwrap_or_else(|| artifacts_dir.to_string_lossy().into_owned());
++
++    let prover_path = artifacts_dir.join("jolt_prover_preprocessing.dat");
++    let verifier_path = artifacts_dir.join("jolt_verifier_preprocessing.dat");
++
++    if prover_path.exists() && verifier_path.exists() {
++        let prover = JoltProverPreprocessing::<F, PCS>::read_from_target_dir(&artifacts_str)
++            .context("load prover preprocessing")?;
++        let verifier = JoltVerifierPreprocessing::<F, PCS>::read_from_target_dir(&artifacts_str)
++            .context("load verifier preprocessing")?;
++        return Ok(PreprocessingBundle { prover, verifier });
++    }
++
++    let temp_dir = Builder::new()
++        .prefix("allocation-gate-build-")
++        .tempdir()
++        .context("create temporary compilation directory")?;
++    let compile_path = temp_dir.path().to_string_lossy().into_owned();
++
++    let mut program = guest::compile_allocation_gate(&compile_path);
++    let prover = guest::preprocess_prover_allocation_gate(&mut program);
++    let verifier = guest::verifier_preprocessing_from_prover_allocation_gate(&prover);
++
++    prover
++        .save_to_target_dir(&artifacts_str)
++        .context("store prover preprocessing")?;
++    verifier
++        .save_to_target_dir(&artifacts_str)
++        .context("store verifier preprocessing")?;
++
++    Ok(PreprocessingBundle { prover, verifier })
++}

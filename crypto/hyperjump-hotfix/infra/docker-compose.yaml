@@ -1,0 +1,12 @@
+services:
+  starjump:
+    build: .
+    container_name: spaceship
+    environment:
+      - FLAG=csawctf{1_d0n7_l1k3_54nd_175_c04r53_r0u6h_4nd_1rr17471n6_4nd_17_6375_3v3rywh3r3}
+    volumes:
+      - ./logs:/app/logs:ro
+      - ./docs:/app/docs:ro
+    
+    working_dir: /app
+    tty: true

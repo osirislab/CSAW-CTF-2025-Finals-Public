@@ -1,0 +1,22 @@
+FROM rust:1.89
+
+WORKDIR /workspace
+
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="$PATH:/root/.local/bin/"
+
+COPY starter/Cargo.toml starter/Cargo.lock ./starter/
+COPY starter/src ./starter/src
+
+ENV PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1
+
+RUN cargo build --manifest-path starter/Cargo.toml --release --locked
+
+COPY ./artifacts ./artifacts
+COPY ./program.so .
+
+COPY ./starter/main.py ./starter
+COPY ./starter/uv.lock ./starter
+COPY ./starter/pyproject.toml ./starter
+
+CMD ["/bin/bash"]

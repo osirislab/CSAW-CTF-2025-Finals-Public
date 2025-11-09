@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel">
+  <h2>Telemetry Bay</h2>
+  <p class="muted">Upload mission documents. Preview is available for PDFs you’ve uploaded.</p>
+</section>
+
+<form class="card upload-form" action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
+  <div class="file-input-group">
+    <label for="file">Choose a file</label>
+    <input type="file" id="file" name="file" required>
+  </div>
+  <button>Upload</button>
+</form>
+
+<div class="grid">
+  <div class="card">
+    <h3>Your uploads</h3>
+    <ul class="list">
+      {% for f in files %}
+        <li>
+          <code>{{ f }}</code>
+          <a class="btn small-btn" href="{{ url_for('preview') }}?file={{ f }}">Preview</a>
+        </li>
+      {% else %}
+        <li class="muted">No files yet.</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}

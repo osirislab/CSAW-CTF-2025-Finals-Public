@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+  {% if msg %}
+    <p class="notice">{{ msg }}</p>
+  {% endif %}
+
+  {% if user %}
+    <section class="panel">
+      <p>Proceed to your <a href="{{ url_for('dashboard') }}">Dashboard</a>.</p>
+    </section>
+  {% else %}
+    <section class="grid">
+      <form action="{{ url_for('login') }}" method="post" class="card">
+        <h2>Log in</h2>
+        <label>Username
+          <input name="username" required>
+        </label>
+        <label>Password
+          <input name="password" type="password" required>
+        </label>
+        <button>Enter</button>
+      </form>
+
+      <form action="{{ url_for('register') }}" method="post" class="card">
+        <h2>Create account</h2>
+        <label>Username
+          <input name="username" required>
+        </label>
+        <label>Password
+          <input name="password" type="password" required>
+        </label>
+        <button>Register</button>
+      </form>
+    </section>
+  {% endif %}
+{% endblock %}

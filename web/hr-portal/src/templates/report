@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generated Report - HR Portal</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --black: #000000;
+            --white: #ffffff;
+            --gray-50: #fafafa;
+            --gray-100: #f5f5f5;
+            --gray-200: #e5e5e5;
+            --gray-300: #d4d4d4;
+            --gray-400: #a3a3a3;
+            --gray-500: #737373;
+            --gray-600: #525252;
+            --gray-700: #404040;
+            --gray-800: #262626;
+            --gray-900: #171717;
+            --red: #ef4444;
+            --green: #22c55e;
+            --blue: #3b82f6;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--white);
+            color: var(--black);
+            line-height: 1.6;
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .report-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .header-text h3 {
+            font-size: 1.75rem;
+            font-weight: 300;
+            letter-spacing: -0.02em;
+            color: var(--black);
+            margin-bottom: 0.25rem;
+        }
+
+        .header-subtitle {
+            font-size: 0.9rem;
+            color: var(--gray-500);
+            font-weight: 400;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: 1px solid var(--gray-200);
+            background: var(--white);
+            color: var(--black);
+            font-size: 0.875rem;
+            font-weight: 500;
+            font-family: inherit;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            letter-spacing: -0.01em;
+        }
+
+        .btn:hover {
+            background: var(--gray-50);
+            border-color: var(--gray-300);
+        }
+
+        .btn:active {
+            background: var(--gray-100);
+            transform: scale(0.995);
+        }
+
+        .btn-primary {
+            background: var(--black);
+            color: var(--white);
+            border-color: var(--black);
+        }
+
+        .btn-primary:hover {
+            background: var(--gray-800);
+            border-color: var(--gray-800);
+        }
+
+        .btn:focus {
+            outline: 2px solid var(--black);
+            outline-offset: 2px;
+        }
+
+        .report-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .meta-item {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            padding: 1.25rem;
+        }
+
+        .meta-label {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .meta-value {
+            font-size: 0.95rem;
+            color: var(--black);
+            font-weight: 500;
+        }
+
+        .report-content {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            padding: 3rem;
+            min-height: 400px;
+        }
+
+        .report-content h1,
+        .report-content h2,
+        .report-content h3,
+        .report-content h4,
+        .report-content h5,
+        .report-content h6 {
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+            margin-bottom: 1rem;
+            color: var(--black);
+        }
+
+        .report-content h1 { font-size: 2rem; font-weight: 300; }
+        .report-content h2 { font-size: 1.5rem; }
+        .report-content h3 { font-size: 1.25rem; }
+        .report-content h4 { font-size: 1.125rem; }
+
+        .report-content p {
+            margin-bottom: 1.5rem;
+            color: var(--gray-700);
+            line-height: 1.6;
+        }
+
+        .report-content ul,
+        .report-content ol {
+            margin-bottom: 1.5rem;
+            padding-left: 1.5rem;
+            color: var(--gray-700);
+        }
+
+        .report-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .report-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
+
+        .report-content th,
+        .report-content td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .report-content th {
+            background: var(--gray-50);
+            font-weight: 500;
+            color: var(--black);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .report-content td {
+            color: var(--gray-700);
+        }
+
+        .report-content tr:hover {
+            background: var(--gray-50);
+        }
+
+        .footer {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--gray-200);
+            text-align: center;
+        }
+
+        .footer-text {
+            font-size: 0.875rem;
+            color: var(--gray-400);
+        }
+
+    </style>
+</head>
+<body>
+    <script>const CSRF_TOKEN = '{{csrf}}';</script>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <div class="report-icon">R</div>
+                <div class="header-text">
+                    <h3>Generated Report</h3>
+                    <p class="header-subtitle">HR Analytics Report</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="btn" onclick="window.print()">
+                    <span>Print</span>
+                </button>
+                <button class="btn" onclick="downloadReport()">
+                    <span>Download</span>
+                </button>
+                <a href="/admin" class="btn btn-primary">
+                    <span>Back to Dashboard</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="report-meta">
+            <div class="meta-item">
+                <div class="meta-label">Generated</div>
+                <div class="meta-value">{{ timestamp }}</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">Report Type</div>
+                <div class="meta-value">HR Analytics</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">Generated By</div>
+                <div class="meta-value">{{ generated_by }}</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">Status</div>
+                <div class="meta-value">{{ status }}</div>
+            </div>
+        </div>
+
+        <div class="report-content" id="reportContent">
+            <h2>{{ report_title }}</h2>
+            <p>{{ report_intro }}</p>
+
+            <h3>Employee Statistics</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Department</th>
+                        <th>Employee Count</th>
+                        <th>Average Tenure</th>
+                        <th>Satisfaction Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stat in employee_stats %}
+                    <tr>
+                        <td>{{ stat.department }}</td>
+                        <td>{{ stat.count }}</td>
+                        <td>{{ stat.tenure }}</td>
+                        <td>{{ stat.satisfaction }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <h3>Key Findings</h3>
+            <ul>
+                {% for finding in key_findings %}
+                <li>{{ finding }}</li>
+                {% endfor %}
+                <li><b>Administrator Notes:</b>{{ report_content }}</li>
+            </ul>
+
+            <blockquote>
+                "{{ key_quote }}"
+            </blockquote>
+        </div>
+
+        <div class="footer">
+            <p class="footer-text">
+                Report generated automatically by HR Portal System
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Download functionality
+        function downloadReport() {
+            const content = document.getElementById('reportContent').innerHTML;
+            const blob = new Blob([`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>HR Report</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+                        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        th { background-color: #f2f2f2; }
+                    </style>
+                </head>
+                <body>
+                    <h1>HR Report</h1>
+                    ${content}
+                </body>
+                </html>
+            `], { type: 'text/html' });
+            
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `hr-report-${new Date().toISOString().split('T')[0]}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

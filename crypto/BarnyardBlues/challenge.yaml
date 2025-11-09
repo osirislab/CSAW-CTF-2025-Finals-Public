@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=../../schema.json
+apiVersion: v1alpha1
+kind: ctfer.io/Dynamic
+spec:
+  name: Barnyard Blues
+  description: |
+    Old Farmer Jenkins hid his hog feed formula using strange symbols scrawled across the barn walls.
+    Can you decipher his code and uncover the secret?
+  attribution: Mary Ellen Kennel (@icanhaspii)
+  value: 100
+  minimum: 50
+  decay: 100
+  function: linear
+  state: visible
+
+  flags:
+    - csawctf{OINK_OINK_CRYPTO_IS_FUN}
+
+  files:
+    - crypto/BarnyardBlues/cipher.png

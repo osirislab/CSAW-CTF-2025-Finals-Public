@@ -1,0 +1,16 @@
+/target
+/guest/target
+/dishonest-proofgen/target
+
+/artifacts
+
+/dishonest-proofgen/artifacts
+*.urs
+
+/starter/.venv
+/starter/__pycache__
+/starter/target
+
+/solve/.venv
+/solve/__pycache__
+/solve/cache

@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=../../schema.json
+apiVersion: v1alpha1
+kind: ctfer.io/Dynamic
+spec:
+  name: The Cat Ate My Homework
+  description: |
+    A simple forensics challenge: a .docx file is hidden within a JPEG image.
+    Examine the binary contents and carve out the hidden document to recover the flag.
+  attribution: Mary Ellen Kennel (@icanhaspii)
+  value: 100
+  minimum: 50
+  decay: 100
+  function: linear
+  state: visible
+
+  flags:
+    - csawctf{C@ts_Luv_3@7ing_p@per!}
+
+  files:
+    - forensics/TheCatAteMyHomework/Challenge/StuffedJPEG/IMG_20250705_234750_Edited3_Stuffed.jpg

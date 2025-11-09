@@ -1,0 +1,1 @@
+docker build -t hr-portal .;  docker run -p 5000:5000 hr-porta

@@ -1,0 +1,35 @@
+apiVersion: v1alpha1
+kind: ctfer.io/DynamicIaC
+spec:
+  name: Orbital Uplink
+  description: |
+    Ground control insists the uplink is “locked down.” Astronauts authenticate, upload PDFs, and preview them in-browser.
+  attribution: jackhax
+  value: 500
+  minimum: 50 
+  decay: 275
+  function: logarithmic
+  state: visible
+
+  flags:
+    - csaw{5p4c3_mY573ry_r00t_up11nk_4040712f45886c74e395cd976c91b573}
+
+  shared: true
+  start: true
+  scenario:
+    apiVersion: v1alpha1
+    kind: sdk.ctfer.io/kubernetes.ExposedMonopod
+    spec:
+      image: web/orbital-uplink:v0.1.0
+      build:
+        context: infra/
+        dockerfile: Dockerfile
+      ports:
+        - port: 5001
+          protocol: TCP
+          exposeType: Ingress
+      hostname: csaw.io
+    outputs:
+      connectionInfo: |
+        {{- $hostport := index .URLs "5001/TCP" -}}
+        http://{{ $hostport }}

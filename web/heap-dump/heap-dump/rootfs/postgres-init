@@ -1,0 +1,4 @@
+#!/bin/sh
+export POSTGRES_USER=prodadminsecretusername
+export POSTGRES_PASSWORD=9283qiyulgajweskhl97uryioqwlauh
+export POSTGRES_DB=totallyhidden

@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=../../schema.json
+apiVersion: v1alpha1
+kind: ctfer.io/DynamicIaC
+spec:
+  name: Hyperjump Hotfix 🚀
+  description: |
+    We haven't heard back from Comnavcent's scouting ship under pilot #404.
+    Delayed arrival may result in a paycut and/or risk of enforced deruglation.
+
+    Your assignment: Check in on them
+  attribution: smallfoot
+  value: 500
+  minimum: 50
+  decay: 275
+  function: logarithmic
+  state: visible
+
+  flags:
+    - csawctf{Wh47_4b0u7_7h3_dr01d_4774ck_0n_7h3_w00k135}
+
+  mana_cost: 1
+  timeout: 900 # 15 minutes
+  scenario:
+    apiVersion: v1alpha1
+    kind: sdk.ctfer.io/manual
+    spec:
+      reference: crypto/hyperjump-hotfix-scenario:v0.1.1
+      directory: infra/scenario
+    additional:
+      image: 391919513406.dkr.ecr.us-east-1.amazonaws.com/crypto/hyperjump-hotfix:v0.1.0 # XXX manual effort here
+      hostname: chals.ctf.csaw.io

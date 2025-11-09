@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Orbital Uplink</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+<header class="header">
+  <div class="wrap">
+    <h1>Orbital Uplink</h1>
+    <p class="sub">Asteria Deep Space Relay</p>
+    {% if user %}
+    <form action="{{ url_for('logout') }}" method="post" class="logout">
+      <span>Signed in as <strong>{{ user['username'] }}</strong></span>
+      {% if admin %}<span class="badge">ADMIN</span>{% endif %}
+      <button>Log out</button>
+    </form>
+    {% endif %}
+  </div>
+</header>
+<main class="wrap">
+  {% block content %}{% endblock %}
+</main>
+<footer class="footer">
+  <div class="wrap">
+    <small>The cosmos whispers to those who listen.</small>
+  </div>
+</footer>
+</body>
+</html>

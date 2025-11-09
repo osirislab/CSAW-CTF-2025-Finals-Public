@@ -1,0 +1,161 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Orbitron', monospace;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a0a0a 50%, #2a1a1a 100%);
+  color: #00ff88;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.stars {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.star {
+  position: absolute;
+  background: #fff;
+  border-radius: 50%;
+  animation: twinkle 2s infinite alternate;
+}
+
+@keyframes twinkle {
+  0% { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+
+.header {
+  text-align: center;
+  padding: 2rem 0;
+  background: rgba(0, 0, 0, 0.8);
+  border-bottom: 2px solid #ff4444;
+  box-shadow: 0 0 20px rgba(255, 68, 68, 0.3);
+}
+
+.header h1 {
+  font-size: 3rem;
+  font-weight: 900;
+  color: #ff4444;
+  text-shadow: 0 0 20px rgba(255, 68, 68, 0.5);
+  margin-bottom: 0.5rem;
+  letter-spacing: 3px;
+}
+
+.header .subtitle {
+  font-size: 1.2rem;
+  color: #00ff88;
+  text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+  letter-spacing: 2px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.gallery {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  margin: 3rem 0;
+  min-height: 500px;
+}
+
+.nav-button {
+  background: linear-gradient(45deg, #ff4444, #ff6666);
+  border: none;
+  color: white;
+  font-family: 'Orbitron', monospace;
+  font-size: 1.5rem;
+  font-weight: 700;
+  padding: 1rem 1.5rem;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 20px rgba(255, 68, 68, 0.4);
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-button:hover {
+  background: linear-gradient(45deg, #ff6666, #ff8888);
+  box-shadow: 0 0 30px rgba(255, 68, 68, 0.6);
+  transform: scale(1.1);
+}
+
+.nav-button:active {
+  transform: scale(0.95);
+}
+
+.nav-button:disabled {
+  background: linear-gradient(45deg, #666, #888);
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.image-container {
+  flex: 1;
+  max-width: 800px;
+  text-align: center;
+}
+
+#marsImage {
+  max-width: 100%;
+  max-height: 600px;
+  border-radius: 10px;
+  box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+  border: 2px solid #00ff88;
+  transition: all 0.5s ease;
+}
+
+#marsImage:hover {
+  box-shadow: 0 0 40px rgba(0, 255, 136, 0.5);
+  transform: scale(1.02);
+}
+
+@media (max-width: 768px) {
+  .header h1 {
+	font-size: 2rem;
+  }
+
+  .header .subtitle {
+	font-size: 1rem;
+  }
+
+  .gallery {
+	flex-direction: column;
+	gap: 1rem;
+  }
+
+  .nav-button {
+	width: 60px;
+	height: 60px;
+	font-size: 1.2rem;
+  }
+
+  .container {
+	padding: 1rem;
+  }
+
+  #marsImage {
+	max-height: 400px;
+  }
+}

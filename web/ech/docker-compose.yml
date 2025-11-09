@@ -1,0 +1,17 @@
+services:
+  ech-dns-server:
+    build: .
+    container_name: ech_dns_ctf
+    ports:
+      - "8053:8053"
+    environment:
+      - FLASK_ENV=production
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - ctf-network
+
+networks:
+  ctf-network:
+    driver: bridge

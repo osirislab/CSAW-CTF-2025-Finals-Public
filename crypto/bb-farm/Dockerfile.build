@@ -1,0 +1,22 @@
+FROM rust:1.89 AS builder
+
+WORKDIR /app
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends pkg-config libssl-dev clang \
+    && rm -rf /var/lib/apt/lists/*
+
+# Only copy the manifests and sources required to build the binary and its
+# path dependency. Keeping the context small maximizes Docker layer caching.
+COPY Cargo.toml Cargo.lock ./
+COPY build.rs ./
+COPY src ./src
+
+# Guest crate (path dependency used by build.rs and the main binary).
+COPY guest/Cargo.toml ./guest/Cargo.toml
+COPY guest/src ./guest/src
+
+
+RUN cargo build --release --locked
+
+CMD ["/bin/true"]

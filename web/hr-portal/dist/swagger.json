@@ -1,0 +1,180 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "HR Reports Portal",
+    "description": "HR Reports Portal, under development. Barebone available, not connected to real reports database.",
+    "version": "1.0.0"
+  },
+  "host": "hr.intellx.in",
+  "basePath": "/",
+  "schemes": ["http"],
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Home",
+        "description": "Displays the home page and greets the user.",
+        "responses": {
+          "200": {
+            "description": "Home page rendered successfully"
+          }
+        }
+      }
+    },
+    "/login": {
+      "get": {
+        "summary": "Login",
+        "description": "Logs in as a guest user.",
+        "responses": {
+          "302": {
+            "description": "Redirects to home page after login"
+          }
+        }
+      }
+    },
+    "/admin": {
+      "get": {
+        "summary": "Admin",
+        "description": "Displays the admin page if the user is an admin.",
+        "responses": {
+          "200": {
+            "description": "Admin page rendered successfully"
+          },
+          "403": {
+            "description": "Permission denied for non-admin users"
+          }
+        }
+      }
+    },
+    "/admin/report": {
+      "post": {
+        "summary": "Admin Report Generation",
+        "description": "Allows an admin to generate a report.",
+        "parameters": [
+          {
+            "name": "report",
+            "in": "formData",
+            "required": true,
+            "type": "string",
+            "description": "The content of the report"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Report generated successfully"
+          },
+          "403": {
+            "description": "Forbidden - Only admin can access this endpoint"
+          }
+        }
+      }
+    },
+    "/api/logs": {
+      "get": {
+        "summary": "Get Logs",
+        "description": "Returns the contents of the application log file.",
+        "responses": {
+          "200": {
+            "description": "Application logs retrieved successfully"
+          },
+          "500": {
+            "description": "Error retrieving logs"
+          }
+        }
+      },
+      "post": {
+        "summary": "Log a Message",
+        "description": "Allows a user to log a message to the application log file.",
+        "parameters": [
+          {
+            "name": "message",
+            "in": "formData",
+            "required": true,
+            "type": "string",
+            "description": "The log message"
+          },          
+          {
+            "name": "csrf_token",
+            "in": "formData",
+            "required": true,
+            "type": "string",
+            "description": "The CSRF token"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Message logged successfully"
+          },
+          "403": {
+            "description": "Permission denied for non-admin users"
+          }
+        }
+      }
+    },
+    "/api/logs/parse": {
+      "get": {
+        "summary": "Parse Logs",
+        "description": "Parses the last 10 log entries.",
+        "responses": {
+          "200": {
+            "description": "Logs parsed"
+          },
+          "500": {
+            "description": "Error parsing logs"
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health Check",
+        "description": "Returns the health status of the application.",
+        "responses": {
+          "200": {
+            "description": "Health check passed"
+          }
+        }
+      }
+    },
+    "/{filepath}": {
+      "get": {
+        "summary": "File Inclusion Endpoint",
+        "description": "This endpoint allows users to access various files within the application. Internal documents may be available depending on the path provided.",
+        "parameters": [
+          {
+            "name": "filepath",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The path of the file to access"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "File content returned"
+          },
+          "404": {
+            "description": "File not found"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {},
+  "responses": {
+    "200": {
+      "description": "Successful response"
+    },
+    "400": {
+      "description": "Bad Request"
+    },
+    "403": {
+      "description": "Forbidden"
+    },
+    "404": {
+      "description": "Not Found"
+    },
+    "500": {
+      "description": "Internal Server Error"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+[Unit]
+Description=Run Service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/.honey/systail
+Restart=on-failure
+TimeoutSec=60
+User=root
+Group=root
+LimitMEMLOCK=infinity
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
